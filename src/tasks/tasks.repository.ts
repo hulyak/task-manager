@@ -1,5 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { Task } from './task.entity';
+import { TaskStatus } from './task-status.enum';
 
 @EntityRepository(Task)
 export class TasksRepository extends Repository<Task> {
@@ -13,10 +15,16 @@ export class TasksRepository extends Repository<Task> {
     return task;
   }
 
-  public async createTask(task: Task): Promise<Task> {
-    await this.save(task);
+  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    const { title, description } = createTaskDto;
 
-    return task;
+    const newTask = this.create({
+      title,
+      description,
+      status: TaskStatus.OPEN,
+    });
+    await this.save(newTask);
+    return newTask;
   }
 
   public async updateTask(id: number, task: Task): Promise<Task> {
